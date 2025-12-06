@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Car Price Prediction</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100%;
+      height: 100%;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    html {
+      height: 100%;
+      width: 100%;
+    }
+
+    .container {
+      background: #ffffff;
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: 48px;
+      max-width: 600px;
+      width: 100%;
+      animation: slideIn 0.6s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h1 {
+      color: #2d3748;
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .subtitle {
+      color: #718096;
+      font-size: 16px;
+      text-align: center;
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    label {
+      display: block;
+      color: #2d3748;
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 8px;
+      margin-top: 20px;
+    }
+
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 16px;
+      color: #2d3748;
+      transition: all 0.3s ease;
+      background: #f7fafc;
+    }
+
+    input[type="number"]:focus,
+    select:focus {
+      outline: none;
+      border-color: #667eea;
+      background: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    }
+
+    input[type="number"]:hover,
+    select:hover {
+      border-color: #cbd5e0;
+    }
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%232d3748' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 40px;
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 700;
+      margin-top: 32px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    #result {
+      margin-top: 24px;
+      padding: 20px;
+      background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+      color: #ffffff;
+      border-radius: 12px;
+      text-align: center;
+      font-size: 20px;
+      font-weight: 600;
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    #result.show {
+      display: block;
+    }
+
+    #error {
+      margin-top: 24px;
+      padding: 20px;
+      background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);
+      color: #ffffff;
+      border-radius: 12px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 600;
+      display: none;
+      animation: shake 0.5s ease;
+    }
+
+    #error.show {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #ffffff;
+      animation: spin 0.8s linear infinite;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        padding: 32px 24px;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+
+      .subtitle {
+        font-size: 14px;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <main class="container">
+   <h1 id="mainTitle">Car Price Prediction</h1>
+   <p class="subtitle" id="subtitleText">Enter the car details to estimate its selling price.</p><label for="present_price">Present price (in lakhs) <input id="present_price" type="number" step="0.01" min="0" placeholder="e.g., 5.59"> </label> <label for="kms_driven">Kilometers driven <input id="kms_driven" type="number" step="1" min="0" placeholder="e.g., 27000"> </label> <label for="owner">Number of previous owners <input id="owner" type="number" step="1" min="0" placeholder="e.g., 0"> </label> <label for="age">Age of car (years) <input id="age" type="number" step="1" min="0" placeholder="e.g., 3"> </label> <label for="fuel_type">Fuel type <select id="fuel_type"> <option value="Petrol">Petrol</option> <option value="Diesel">Diesel</option> <option value="CNG">CNG</option> </select> </label> <label for="seller_type">Seller type <select id="seller_type"> <option value="Dealer">Dealer</option> <option value="Individual">Individual</option> </select> </label> <label for="transmission">Transmission <select id="transmission"> <option value="Manual">Manual</option> <option value="Automatic">Automatic</option> </select> </label> <button id="predictButton" onclick="sendPrediction()">Predict Price</button>
+   <div id="result"></div>
+   <div id="error"></div>
+   <p class="subtitle" id="footerNote" style="margin-top:24px;">Model: Neural network regressor trained on scaled features and target values.</p>
+  </main>
+  <script>
+    const defaultConfig = {
+      background_color: "#667eea",
+      surface_color: "#ffffff",
+      text_color: "#2d3748",
+      primary_action_color: "#667eea",
+      success_color: "#48bb78",
+      font_family: "Segoe UI",
+      font_size: 16,
+      main_title: "Car Price Prediction",
+      subtitle: "Enter the car details to estimate its selling price.",
+      button_text: "Predict Price",
+      footer_text: "Model: Neural network regressor trained on scaled features and target values."
+    };
+
+    async function onConfigChange(config) {
+      const customFont = config.font_family || defaultConfig.font_family;
+      const baseFontStack = 'Tahoma, Geneva, Verdana, sans-serif';
+      const baseSize = config.font_size || defaultConfig.font_size;
+      
+      document.body.style.fontFamily = `${customFont}, ${baseFontStack}`;
+      document.body.style.background = `linear-gradient(135deg, ${config.background_color || defaultConfig.background_color} 0%, #764ba2 100%)`;
+      
+      const container = document.querySelector('.container');
+      container.style.background = config.surface_color || defaultConfig.surface_color;
+      
+      const h1 = document.getElementById('mainTitle');
+      h1.style.color = config.text_color || defaultConfig.text_color;
+      h1.style.fontSize = `${baseSize * 2.25}px`;
+      h1.textContent = config.main_title || defaultConfig.main_title;
+      
+      const subtitles = document.querySelectorAll('.subtitle');
+      subtitles.forEach(subtitle => {
+        subtitle.style.fontSize = `${baseSize}px`;
+        subtitle.style.color = config.text_color || defaultConfig.text_color;
+      });
+      
+      document.getElementById('subtitleText').textContent = config.subtitle || defaultConfig.subtitle;
+      document.getElementById('footerNote').textContent = config.footer_text || defaultConfig.footer_text;
+      
+      const labels = document.querySelectorAll('label');
+      labels.forEach(label => {
+        label.style.color = config.text_color || defaultConfig.text_color;
+        label.style.fontSize = `${baseSize * 0.875}px`;
+      });
+      
+      const inputs = document.querySelectorAll('input, select');
+      inputs.forEach(input => {
+        input.style.color = config.text_color || defaultConfig.text_color;
+        input.style.fontSize = `${baseSize}px`;
+      });
+      
+      const button = document.getElementById('predictButton');
+      button.style.background = `linear-gradient(135deg, ${config.primary_action_color || defaultConfig.primary_action_color} 0%, #764ba2 100%)`;
+      button.style.fontSize = `${baseSize * 1.125}px`;
+      button.textContent = config.button_text || defaultConfig.button_text;
+      
+      const result = document.getElementById('result');
+      result.style.background = `linear-gradient(135deg, ${config.success_color || defaultConfig.success_color} 0%, #38a169 100%)`;
+      result.style.fontSize = `${baseSize * 1.25}px`;
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities: (config) => ({
+          recolorables: [
+            {
+              get: () => config.background_color || defaultConfig.background_color,
+              set: (value) => {
+                config.background_color = value;
+                window.elementSdk.setConfig({ background_color: value });
+              }
+            },
+            {
+              get: () => config.surface_color || defaultConfig.surface_color,
+              set: (value) => {
+                config.surface_color = value;
+                window.elementSdk.setConfig({ surface_color: value });
+              }
+            },
+            {
+              get: () => config.text_color || defaultConfig.text_color,
+              set: (value) => {
+                config.text_color = value;
+                window.elementSdk.setConfig({ text_color: value });
+              }
+            },
+            {
+              get: () => config.primary_action_color || defaultConfig.primary_action_color,
+              set: (value) => {
+                config.primary_action_color = value;
+                window.elementSdk.setConfig({ primary_action_color: value });
+              }
+            },
+            {
+              get: () => config.success_color || defaultConfig.success_color,
+              set: (value) => {
+                config.success_color = value;
+                window.elementSdk.setConfig({ success_color: value });
+              }
+            }
+          ],
+          borderables: [],
+          fontEditable: {
+            get: () => config.font_family || defaultConfig.font_family,
+            set: (value) => {
+              config.font_family = value;
+              window.elementSdk.setConfig({ font_family: value });
+            }
+          },
+          fontSizeable: {
+            get: () => config.font_size || defaultConfig.font_size,
+            set: (value) => {
+              config.font_size = value;
+              window.elementSdk.setConfig({ font_size: value });
+            }
+          }
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ["main_title", config.main_title || defaultConfig.main_title],
+          ["subtitle", config.subtitle || defaultConfig.subtitle],
+          ["button_text", config.button_text || defaultConfig.button_text],
+          ["footer_text", config.footer_text || defaultConfig.footer_text]
+        ])
+      });
+    }
+
+    async function sendPrediction() {
+      const present_price = document.getElementById("present_price").value;
+      const kms_driven = document.getElementById("kms_driven").value;
+      const owner = document.getElementById("owner").value;
+      const age = document.getElementById("age").value;
+      const fuel_type = document.getElementById("fuel_type").value;
+      const seller_type = document.getElementById("seller_type").value;
+      const transmission = document.getElementById("transmission").value;
+
+      const errorDiv = document.getElementById("error");
+      const resultDiv = document.getElementById("result");
+      
+      errorDiv.classList.remove('show');
+      resultDiv.classList.remove('show');
+      errorDiv.textContent = "";
+      resultDiv.textContent = "";
+
+      if (!present_price || !kms_driven || !owner || !age) {
+        errorDiv.textContent = "⚠️ Please fill in all numeric fields.";
+        errorDiv.classList.add('show');
+        return;
+      }
+
+      const button = document.getElementById("predictButton");
+      const originalText = button.textContent;
+      button.innerHTML = 'Predicting<span class="loading"></span>';
+      button.disabled = true;
+
+      try {
+        const res = await fetch("/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            present_price,
+            kms_driven,
+            owner,
+            age,
+            fuel_type,
+            seller_type,
+            transmission
+          })
+        });
+
+        if (!res.ok) {
+          throw new Error("Server error");
+        }
+
+        const data = await res.json();
+        const price = Number(data.predicted_price).toFixed(2);
+        resultDiv.textContent = "🎉 Estimated selling price: ₹" + price + " lakhs";
+        resultDiv.classList.add('show');
+      } catch (e) {
+        errorDiv.textContent = "❌ Something went wrong. Please try again.";
+        errorDiv.classList.add('show');
+      } finally {
+        button.textContent = originalText;
+        button.disabled = false;
+      }
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a9c011761ead2eb',t:'MTc2NTAyNjQyNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
