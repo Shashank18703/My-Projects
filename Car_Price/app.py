@@ -41,9 +41,10 @@ def predict_price(raw):
     '''
     # 1. Build feature dict in same way as notebook
     ff = {}
-    ff["Presnt_Price"] = float(raw["present_price"])
+    ff["Present_Price"] = float(raw["present_price"])
     ff["Kms_Driven"] = int(raw["kms_driven"])
-    ff["Owner"] = int(raw["age"])
+    ff["Owner"] = int(raw["owner"])
+    ff["Age"] = int(raw["age"])
 
     fuel = raw["fuel_type"]
     ff["Fuel_Type_Diesel"] = (fuel == "Diesel")
@@ -58,25 +59,20 @@ def predict_price(raw):
 
     # Dataframe in the correct column order
     df = pd.DataFrame([ff])
-    df = df.reindex(columns = feature_columns, fill_value=False)
+    df = df.reindex(columns = feature_columns, fill_value=False).astype(float)
 
-    # 2. Splitting the numeric vs. categorical
-    numeric_cols = ["Present_Price", "Kms_Driven", "Owner", "Age"]
-    X_num = df[numeric_cols].values
-    X_cat = df.drop(columns = numeric_cols).values.astype(float)
+    # The scaler was trained on all 8 features, so we pass all 8 features (X_full)
+    X_full = df.values
 
-    # 3. Scaling the numeric features with scaler used for scaler_X
-    X_num_scaled = scaler_X.transform(X_num)
+    # 2. Scaling the numeric features with scaler used for scaler_X
+    X_full_scaled = scaler_X.transform(X_full)
 
-    # 4. Reconstruct full input
-    X_full_scaled = np.concatenate([X_num_scaled, X_cat], axis = 1)
-
-    # 5. Predict in Scaled Target space
+    # 3. Predict in scaled Target space
     x_tensor = torch.tensor(X_full_scaled, dtype = torch.float32)
     with torch.no_grad():
         y_scaled_pred = model(x_tensor).numpy().reshape(-1, 1)
 
-    # 6. Inverse-scale to original price units
+    # 4. Inverse-scale to original price units
     y_pred = scaler_Y.inverse_transform(y_scaled_pred)
     price = float(y_pred[0,0])
 
