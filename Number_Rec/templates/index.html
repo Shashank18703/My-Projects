@@ -406,7 +406,7 @@
         }
 
         const data = await res.json();
-        document.getElementById('pred-main').textContent = data.digit;
+        document.getElementById('pred-main').textContent = data.predicted_digit;
 
         if (data.probs && data.probs.length === 10) {
           for (let d = 0; d <= 9; d++) {
